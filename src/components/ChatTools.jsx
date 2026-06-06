@@ -1,5 +1,7 @@
+import ContentCopyIcon from '@mui/icons-material/ContentCopy'
 import DeleteSweepIcon from '@mui/icons-material/DeleteSweep'
 import DownloadIcon from '@mui/icons-material/Download'
+import KeyboardIcon from '@mui/icons-material/Keyboard'
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp'
 import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore'
@@ -21,7 +23,9 @@ export default function ChatTools({
   onSearchNext,
   onSearchPrevious,
   onExport,
+  onCopy,
   onClear,
+  onShowShortcuts,
   onToggleSettings,
   hasMessages
 }) {
@@ -65,6 +69,14 @@ export default function ChatTools({
 
       <OllamaHealth status={healthStatus} />
 
+      <Tooltip title="Copy chat">
+        <span>
+          <IconButton color="primary" disabled={!hasMessages} onClick={onCopy} aria-label="Copy chat">
+            <ContentCopyIcon />
+          </IconButton>
+        </span>
+      </Tooltip>
+
       <Tooltip title="Export chat">
         <span>
           <IconButton color="primary" disabled={!hasMessages} onClick={onExport} aria-label="Export chat">
@@ -85,6 +97,12 @@ export default function ChatTools({
         <IconButton color="primary" onClick={onToggleSettings} aria-label={settingsOpen ? 'Hide settings' : 'Show settings'}>
           <SettingsIcon />
           {settingsOpen ? <KeyboardArrowUpIcon fontSize="small" /> : <KeyboardArrowDownIcon fontSize="small" />}
+        </IconButton>
+      </Tooltip>
+
+      <Tooltip title="Keyboard shortcuts">
+        <IconButton color="primary" onClick={onShowShortcuts} aria-label="Keyboard shortcuts">
+          <KeyboardIcon />
         </IconButton>
       </Tooltip>
 

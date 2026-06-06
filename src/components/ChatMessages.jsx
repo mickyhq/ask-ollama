@@ -1,4 +1,5 @@
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
+import DeleteIcon from '@mui/icons-material/Delete'
 import DoneIcon from '@mui/icons-material/Done'
 import EditIcon from '@mui/icons-material/Edit'
 import GraphicEqIcon from '@mui/icons-material/GraphicEq'
@@ -112,6 +113,7 @@ export default function ChatMessages({
   onPreviewAttachment,
   onEditMessage,
   onTogglePin,
+  onDeleteMessage,
   onRegenerate,
   onContinue,
   onCancel
@@ -252,6 +254,12 @@ export default function ChatMessages({
               <Tooltip title={message.pinned ? 'Unpin message' : 'Pin message'}>
                 <IconButton color="primary" onClick={() => onTogglePin(message.id)} aria-label={message.pinned ? 'Unpin message' : 'Pin message'}>
                   {message.pinned ? <PushPinIcon /> : <PushPinOutlinedIcon />}
+                </IconButton>
+              </Tooltip>
+
+              <Tooltip title="Delete message">
+                <IconButton color="error" onClick={() => onDeleteMessage(message.id)} aria-label="Delete message">
+                  <DeleteIcon />
                 </IconButton>
               </Tooltip>
 

@@ -5,6 +5,7 @@ import ChatMessages from './ChatMessages.jsx'
 import ChatTools from './ChatTools.jsx'
 import CommandPalette from './CommandPalette.jsx'
 import ConfirmDialog from './ConfirmDialog.jsx'
+import KeyboardShortcutsDialog from './KeyboardShortcutsDialog.jsx'
 import SettingsPanel from './SettingsPanel.jsx'
 import SessionSidebar from './SessionSidebar.jsx'
 import { generateOllamaAnswer, getOllamaModelInfo, getOllamaModels } from '../lib/ollamaApi.js'
@@ -17,6 +18,7 @@ const largeContextChars = 120000
 const defaultSettings = {
   theme: 'dark',
   fontSize: 'normal',
+  density: 'normal',
   defaultModel: '',
   voiceName: '',
   voiceRate: 1,
@@ -164,6 +166,21 @@ function estimateTokens(text) {
   return Math.ceil(text.length / 4)
 }
 
+function formatChatMarkdown(session) {
+  return session.messages
+    .map(message => {
+      const attachmentsText = (message.attachments ?? [])
+        .map(attachment => attachment.previewUrl
+          ? `\n- ${attachment.name}\n\n![${attachment.name}](${attachment.previewUrl})`
+          : `\n- ${attachment.name}`)
+        .join('')
+      const title = message.role === 'user' ? 'You' : 'Ollama'
+
+      return `## ${title}\n\n${message.content}${attachmentsText ? `\n\nAttachments:${attachmentsText}` : ''}`
+    })
+    .join('\n\n')
+}
+
 export default function OllamaChat() {
   const [models, setModels] = useState([])
   const [model, setModel] = useState('')
@@ -183,6 +200,7 @@ export default function OllamaChat() {
   const [status, setStatus] = useState('')
   const [searchJump, setSearchJump] = useState(0)
   const [paletteOpen, setPaletteOpen] = useState(false)
+  const [shortcutsOpen, setShortcutsOpen] = useState(false)
   const [toast, setToast] = useState('')
   const [deletedSession, setDeletedSession] = useState(null)
   const [clearedSession, setClearedSession] = useState(null)
@@ -214,6 +232,7 @@ export default function OllamaChat() {
     localStorage.setItem(settingsStorageKey, JSON.stringify(settings))
     document.documentElement.dataset.theme = settings.theme
     document.documentElement.dataset.fontSize = settings.fontSize
+    document.documentElement.dataset.density = settings.density
   }, [settings])
 
   useEffect(() => {
@@ -301,6 +320,16 @@ export default function OllamaChat() {
       run: exportChat
     },
     {
+      label: 'Copy chat',
+      description: 'Copy current chat markdown',
+      run: copyChat
+    },
+    {
+      label: 'Keyboard shortcuts',
+      description: 'Show shortcut keys',
+      run: () => setShortcutsOpen(true)
+    },
+    {
       label: 'Toggle settings',
       description: 'Show or hide settings panel',
       run: () => setSettingsOpen(current => !current)
@@ -350,6 +379,11 @@ export default function OllamaChat() {
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'n') {
         event.preventDefault()
         startSession()
+      }
+
+      if ((event.metaKey || event.ctrlKey) && event.key === '/') {
+        event.preventDefault()
+        setShortcutsOpen(true)
       }
 
       if (event.key === 'Escape' && loading) {
@@ -576,23 +610,21 @@ export default function OllamaChat() {
     showToast('Chat restored')
   }
 
+  function deleteMessage(messageId) {
+    updateActiveSession(session => ({
+      ...session,
+      messages: session.messages.filter(message => message.id !== messageId),
+      updatedAt: Date.now()
+    }))
+    showToast('Message deleted')
+  }
+
   function exportChat() {
     if (!activeSession) {
       return
     }
 
-    const markdown = activeSession.messages
-      .map(message => {
-        const attachmentsText = (message.attachments ?? [])
-          .map(attachment => attachment.previewUrl
-            ? `\n- ${attachment.name}\n\n![${attachment.name}](${attachment.previewUrl})`
-            : `\n- ${attachment.name}`)
-          .join('')
-        const title = message.role === 'user' ? 'You' : 'Ollama'
-
-        return `## ${title}\n\n${message.content}${attachmentsText ? `\n\nAttachments:${attachmentsText}` : ''}`
-      })
-      .join('\n\n')
+    const markdown = formatChatMarkdown(activeSession)
     const blob = new Blob([markdown], { type: 'text/markdown' })
     const url = URL.createObjectURL(blob)
     const link = document.createElement('a')
@@ -602,6 +634,15 @@ export default function OllamaChat() {
     link.click()
     URL.revokeObjectURL(url)
     showToast('Chat exported')
+  }
+
+  async function copyChat() {
+    if (!activeSession) {
+      return
+    }
+
+    await navigator.clipboard.writeText(formatChatMarkdown(activeSession))
+    showToast('Chat copied')
   }
 
   function exportAllChats() {
@@ -1003,7 +1044,9 @@ export default function OllamaChat() {
           onSearchNext={() => setSearchJump(current => current + 1)}
           onSearchPrevious={() => setSearchJump(current => current - 1)}
           onExport={exportChat}
+          onCopy={copyChat}
           onClear={requestClearChat}
+          onShowShortcuts={() => setShortcutsOpen(true)}
           onToggleSettings={() => setSettingsOpen(current => !current)}
         />
 
@@ -1028,6 +1071,7 @@ export default function OllamaChat() {
           onPreviewAttachment={setPreviewAttachment}
           onEditMessage={editMessage}
           onTogglePin={toggleMessagePin}
+          onDeleteMessage={deleteMessage}
           onRegenerate={regenerateLastAnswer}
           onContinue={continueLastAnswer}
           onCancel={cancelRequest}
@@ -1058,6 +1102,7 @@ export default function OllamaChat() {
           )}
         </DialogContent>
       </Dialog>
+      <KeyboardShortcutsDialog open={shortcutsOpen} onClose={() => setShortcutsOpen(false)} />
       <ConfirmDialog
         open={clearDialogOpen}
         title="Clear chat?"

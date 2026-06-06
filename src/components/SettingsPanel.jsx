@@ -73,6 +73,20 @@ export default function SettingsPanel({
       </FormControl>
 
       <FormControl size="small">
+        <InputLabel id="density-label">Density</InputLabel>
+        <Select
+          labelId="density-label"
+          label="Density"
+          value={settings.density}
+          onChange={event => onSettingsChange({ ...settings, density: event.target.value })}
+        >
+          <MenuItem value="compact">Compact</MenuItem>
+          <MenuItem value="normal">Normal</MenuItem>
+          <MenuItem value="cozy">Cozy</MenuItem>
+        </Select>
+      </FormControl>
+
+      <FormControl size="small">
         <InputLabel id="default-model-label">Default model</InputLabel>
         <Select
           labelId="default-model-label"
