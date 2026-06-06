@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import ChatComposer from './ChatComposer.jsx'
 import ChatMessages from './ChatMessages.jsx'
 import SessionSidebar from './SessionSidebar.jsx'
@@ -64,7 +64,7 @@ function getReferenceChunks(text) {
   })
 }
 
-async function askForText(model, prompt) {
+async function askForText(model, prompt, signal) {
   let answer = ''
 
   await generateOllamaAnswer({
@@ -72,13 +72,14 @@ async function askForText(model, prompt) {
     prompt,
     onChunk: chunk => {
       answer += chunk
-    }
+    },
+    signal
   })
 
   return answer.trim()
 }
 
-async function summarizeAttachment(model, attachment, onProgress) {
+async function summarizeAttachment(model, attachment, onProgress, signal) {
   const chunks = getReferenceChunks(attachment.content)
   const summaries = []
 
@@ -87,7 +88,8 @@ async function summarizeAttachment(model, attachment, onProgress) {
 
     const summary = await askForText(
       model,
-      `Summarize this reference chunk for later question answering. Keep names, dates, numbers, decisions, requirements, and important details. Be concise.\n\nFile: ${attachment.name}\nChunk: ${index + 1} of ${chunks.length}\n\n${chunk}`
+      `Summarize this reference chunk for later question answering. Keep names, dates, numbers, decisions, requirements, and important details. Be concise.\n\nFile: ${attachment.name}\nChunk: ${index + 1} of ${chunks.length}\n\n${chunk}`,
+      signal
     )
 
     summaries.push(`Chunk ${index + 1}: ${summary}`)
@@ -101,17 +103,18 @@ async function summarizeAttachment(model, attachment, onProgress) {
 
   return askForText(
     model,
-    `Merge these chunk summaries into one useful reference summary. Preserve concrete facts, names, dates, numbers, requirements, and unresolved questions.\n\nFile: ${attachment.name}\n\n${summaries.join('\n\n')}`
+    `Merge these chunk summaries into one useful reference summary. Preserve concrete facts, names, dates, numbers, requirements, and unresolved questions.\n\nFile: ${attachment.name}\n\n${summaries.join('\n\n')}`,
+    signal
   )
 }
 
-async function summarizeAttachments(model, attachments, onProgress) {
+async function summarizeAttachments(model, attachments, onProgress, signal) {
   const summaries = []
 
   for (const [index, attachment] of attachments.entries()) {
     onProgress(`Reading file ${index + 1} of ${attachments.length}`)
 
-    const summary = await summarizeAttachment(model, attachment, onProgress)
+    const summary = await summarizeAttachment(model, attachment, onProgress, signal)
 
     summaries.push({
       id: attachment.id,
@@ -145,6 +148,7 @@ export default function OllamaChat() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [modelsLoading, setModelsLoading] = useState(false)
+  const activeRequestRef = useRef(null)
 
   const activeSession = useMemo(
     () => sessions.find(session => session.id === activeSessionId) ?? sessions[0],
@@ -218,6 +222,10 @@ export default function OllamaChat() {
     setError('')
   }
 
+  function cancelRequest() {
+    activeRequestRef.current?.abort()
+  }
+
   async function askOllama(event) {
     event.preventDefault()
 
@@ -228,6 +236,7 @@ export default function OllamaChat() {
     }
 
     const currentAttachments = attachments
+    const controller = new AbortController()
     const userMessage = {
       id: crypto.randomUUID(),
       role: 'user',
@@ -249,6 +258,7 @@ export default function OllamaChat() {
     setAttachments([])
     setError('')
     setLoading(true)
+    activeRequestRef.current = controller
     updateActiveSession(session => ({
       ...session,
       title: session.messages.length === 0 ? summarizeDiscussion(trimmedDraft || currentAttachments[0]?.name || '') : session.title,
@@ -256,31 +266,31 @@ export default function OllamaChat() {
       updatedAt: Date.now()
     }))
 
+    function setAssistantContent(content) {
+      setSessions(currentSessions => currentSessions.map(session => {
+        if (session.id !== activeSession.id) {
+          return session
+        }
+
+        return {
+          ...session,
+          messages: session.messages.map(message => {
+            if (message.id !== assistantMessage.id) {
+              return message
+            }
+
+            return {
+              ...message,
+              content
+            }
+          }),
+          updatedAt: Date.now()
+        }
+      }))
+    }
+
     try {
-      function setAssistantContent(content) {
-        setSessions(currentSessions => currentSessions.map(session => {
-          if (session.id !== activeSession.id) {
-            return session
-          }
-
-          return {
-            ...session,
-            messages: session.messages.map(message => {
-              if (message.id !== assistantMessage.id) {
-                return message
-              }
-
-              return {
-                ...message,
-                content
-              }
-            }),
-            updatedAt: Date.now()
-          }
-        }))
-      }
-
-      const summarizedAttachments = await summarizeAttachments(model, currentAttachments, setAssistantContent)
+      const summarizedAttachments = await summarizeAttachments(model, currentAttachments, setAssistantContent, controller.signal)
       const attachmentText = formatAttachmentSummaries(summarizedAttachments)
       const promptContent = attachmentText
         ? `${trimmedDraft || 'Process attached files.'}\n\nReference summaries:\n\n${attachmentText}`
@@ -343,11 +353,17 @@ export default function OllamaChat() {
               updatedAt: Date.now()
             }
           }))
-        }
+        },
+        signal: controller.signal
       })
     } catch (err) {
-      setError(err.message || 'Ollama request failed')
+      if (err.name === 'AbortError') {
+        setAssistantContent('Canceled.')
+      } else {
+        setError(err.message || 'Ollama request failed')
+      }
     } finally {
+      activeRequestRef.current = null
       setLoading(false)
     }
   }
@@ -380,6 +396,7 @@ export default function OllamaChat() {
           onChange={setDraft}
           onAttachmentsChange={setAttachments}
           onSubmit={askOllama}
+          onCancel={cancelRequest}
         />
       </section>
     </main>

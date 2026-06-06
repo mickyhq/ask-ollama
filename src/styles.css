@@ -278,7 +278,7 @@ select:disabled {
 
 .chat-composer {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto auto;
+  grid-template-columns: minmax(0, 1fr) auto auto auto;
   align-items: end;
   gap: 12px;
   padding: 18px 32px 28px;
@@ -305,6 +305,12 @@ select:disabled {
   color: #e2e8f0;
   background: rgba(30, 41, 59, 0.82);
   border: 1px solid rgba(148, 163, 184, 0.22);
+}
+
+.cancel-button {
+  color: #fecaca;
+  background: rgba(127, 29, 29, 0.38);
+  border: 1px solid rgba(248, 113, 113, 0.35);
 }
 
 .attachment-list {

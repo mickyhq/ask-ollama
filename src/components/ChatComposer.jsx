@@ -11,7 +11,8 @@ export default function ChatComposer({
   disabled,
   onChange,
   onAttachmentsChange,
-  onSubmit
+  onSubmit,
+  onCancel
 }) {
   const fileInputRef = useRef(null)
   const [fileError, setFileError] = useState('')
@@ -109,6 +110,12 @@ export default function ChatComposer({
       <button className="attach-button" type="button" disabled={loading} onClick={handleBrowse}>
         File
       </button>
+
+      {loading && (
+        <button className="cancel-button" type="button" onClick={onCancel}>
+          Cancel
+        </button>
+      )}
 
       <button type="submit" disabled={disabled || loading || (!value.trim() && attachments.length === 0)}>
         {loading ? 'Wait' : 'Send'}

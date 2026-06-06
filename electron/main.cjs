@@ -1,5 +1,6 @@
 const { app, BrowserWindow, ipcMain } = require('electron')
 const path = require('node:path')
+const activeRequests = new Map()
 
 function createWindow() {
   const win = new BrowserWindow({
@@ -50,6 +51,10 @@ ipcMain.handle('ollama:tags', async () => {
 })
 
 ipcMain.on('ollama:generate', async (event, requestId, body) => {
+  const controller = new AbortController()
+
+  activeRequests.set(requestId, controller)
+
   try {
     const response = await fetch(ollamaUrl('/api/generate'), {
       method: 'POST',
@@ -59,7 +64,8 @@ ipcMain.on('ollama:generate', async (event, requestId, body) => {
       body: JSON.stringify({
         ...body,
         stream: true
-      })
+      }),
+      signal: controller.signal
     })
 
     if (!response.ok) {
@@ -105,6 +111,17 @@ ipcMain.on('ollama:generate', async (event, requestId, body) => {
 
     event.sender.send('ollama:generate-done', requestId)
   } catch (err) {
+    if (err.name === 'AbortError') {
+      event.sender.send('ollama:generate-canceled', requestId)
+      return
+    }
+
     event.sender.send('ollama:generate-error', requestId, err.message || 'Ollama request failed')
+  } finally {
+    activeRequests.delete(requestId)
   }
+})
+
+ipcMain.on('ollama:cancel', (_event, requestId) => {
+  activeRequests.get(requestId)?.abort()
 })
