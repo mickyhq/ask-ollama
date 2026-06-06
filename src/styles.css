@@ -137,7 +137,7 @@ textarea {
 }
 
 .sidebar-top {
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr) auto auto;
   align-items: start;
 }
 
@@ -390,6 +390,21 @@ label {
   justify-content: center;
   align-items: center;
   color: #94a3b8;
+}
+
+.pinned-jump-list {
+  display: flex;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  flex-wrap: wrap;
+  gap: 8px;
+  max-width: 880px;
+  border: 1px solid rgba(94, 234, 212, 0.16);
+  border-radius: 8px;
+  padding: 8px;
+  background: rgba(15, 18, 24, 0.92);
+  backdrop-filter: blur(10px);
 }
 
 .message {

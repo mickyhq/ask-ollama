@@ -1,3 +1,6 @@
+import ArchiveIcon from '@mui/icons-material/Archive'
+import UnarchiveIcon from '@mui/icons-material/Unarchive'
+import ContentCopyIcon from '@mui/icons-material/ContentCopy'
 import DeleteIcon from '@mui/icons-material/Delete'
 import EditIcon from '@mui/icons-material/Edit'
 import PushPinIcon from '@mui/icons-material/PushPin'
@@ -10,6 +13,8 @@ export default function SessionRow({
   onSelect,
   onRename,
   onPin,
+  onArchive,
+  onDuplicate,
   onDelete
 }) {
   return (
@@ -32,6 +37,18 @@ export default function SessionRow({
         <Tooltip title="Rename chat">
           <IconButton color="primary" onClick={() => onRename(session.id)} aria-label={`Rename ${session.title}`}>
             <EditIcon />
+          </IconButton>
+        </Tooltip>
+
+        <Tooltip title="Duplicate chat">
+          <IconButton color="primary" onClick={() => onDuplicate(session.id)} aria-label={`Duplicate ${session.title}`}>
+            <ContentCopyIcon />
+          </IconButton>
+        </Tooltip>
+
+        <Tooltip title={session.archived ? 'Unarchive chat' : 'Archive chat'}>
+          <IconButton color="primary" onClick={() => onArchive(session.id)} aria-label={`${session.archived ? 'Unarchive' : 'Archive'} ${session.title}`}>
+            {session.archived ? <UnarchiveIcon /> : <ArchiveIcon />}
           </IconButton>
         </Tooltip>
 

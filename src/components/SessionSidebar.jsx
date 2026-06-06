@@ -1,4 +1,5 @@
 import AddIcon from '@mui/icons-material/Add'
+import Inventory2Icon from '@mui/icons-material/Inventory2'
 import { IconButton, Tooltip } from '@mui/material'
 import ModelSelect from './ModelSelect.jsx'
 import SessionRow from './SessionRow.jsx'
@@ -47,10 +48,15 @@ export default function SessionSidebar({
   onDeleteSession,
   onRenameSession,
   onPinSession,
+  onArchiveSession,
+  onDuplicateSession,
+  onToggleArchived,
   onModelChange,
-  onRefreshModels
+  onRefreshModels,
+  showArchived
 }) {
-  const groups = groupSessions(sessions)
+  const visibleSessions = sessions.filter(session => showArchived ? session.archived : !session.archived)
+  const groups = groupSessions(visibleSessions)
 
   return (
     <aside className="session-sidebar">
@@ -79,9 +85,17 @@ export default function SessionSidebar({
             <AddIcon />
           </IconButton>
         </Tooltip>
+        <Tooltip title={showArchived ? 'Show active chats' : 'Show archived chats'}>
+          <IconButton color={showArchived ? 'secondary' : 'primary'} onClick={onToggleArchived} aria-label={showArchived ? 'Show active chats' : 'Show archived chats'}>
+            <Inventory2Icon />
+          </IconButton>
+        </Tooltip>
       </div>
 
       <nav className="session-list" aria-label="Saved discussions">
+        {groups.length === 0 && (
+          <p className="empty-state">{showArchived ? 'No archived chats.' : 'No chats.'}</p>
+        )}
         {groups.map(group => (
           <div className="session-group" key={group.name}>
             <p>{group.name}</p>
@@ -93,6 +107,8 @@ export default function SessionSidebar({
                 onSelect={onSelectSession}
                 onRename={onRenameSession}
                 onPin={onPinSession}
+                onArchive={onArchiveSession}
+                onDuplicate={onDuplicateSession}
                 onDelete={onDeleteSession}
               />
             ))}

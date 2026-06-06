@@ -129,6 +129,7 @@ export default function ChatMessages({
     [messages]
   )
   const lastAssistantId = [...messages].reverse().find(message => message.role === 'assistant')?.id
+  const pinnedMessages = messages.filter(message => message.pinned)
 
   useEffect(() => {
     if (!autoScrollRef.current) {
@@ -196,6 +197,15 @@ export default function ChatMessages({
     }
   }
 
+  function jumpToMessage(messageId) {
+    messagesRef.current
+      ?.querySelector(`[data-message-id="${messageId}"]`)
+      ?.scrollIntoView({
+        block: 'center',
+        behavior: 'smooth'
+      })
+  }
+
   useEffect(() => {
     const finishedAnswer = previousLoadingRef.current && !loading
 
@@ -239,10 +249,25 @@ export default function ChatMessages({
 
   return (
     <section className="messages" aria-live="polite" ref={messagesRef} onScroll={handleScroll}>
+      {pinnedMessages.length > 0 && (
+        <div className="pinned-jump-list">
+          {pinnedMessages.map(message => (
+            <Chip
+              key={message.id}
+              label={`${message.role === 'user' ? 'You' : 'Ollama'}: ${message.content.slice(0, 28) || 'Pinned'}`}
+              color="primary"
+              variant="outlined"
+              onClick={() => jumpToMessage(message.id)}
+            />
+          ))}
+        </div>
+      )}
+
       {messages.map(message => (
         <article
           className={`message ${message.role}${message.pinned ? ' pinned-message' : ''}${messageMatchesSearch(message, search) ? ' search-match' : ''}`}
           key={message.id}
+          data-message-id={message.id}
         >
           <div className="message-top">
             <div className="message-label">

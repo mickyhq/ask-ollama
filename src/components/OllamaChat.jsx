@@ -196,6 +196,7 @@ export default function OllamaChat() {
   const [systemPrompt, setSystemPrompt] = useState('')
   const [settings, setSettings] = useState(loadSavedSettings)
   const [settingsOpen, setSettingsOpen] = useState(false)
+  const [showArchived, setShowArchived] = useState(false)
   const [modelInfo, setModelInfo] = useState(null)
   const [status, setStatus] = useState('')
   const [searchJump, setSearchJump] = useState(0)
@@ -328,6 +329,11 @@ export default function OllamaChat() {
       label: 'Keyboard shortcuts',
       description: 'Show shortcut keys',
       run: () => setShortcutsOpen(true)
+    },
+    {
+      label: showArchived ? 'Show active chats' : 'Show archived chats',
+      description: 'Switch chat list view',
+      run: () => setShowArchived(current => !current)
     },
     {
       label: 'Toggle settings',
@@ -546,6 +552,69 @@ export default function OllamaChat() {
         updatedAt: Date.now()
       }
     }))
+  }
+
+  function archiveSession(sessionId) {
+    const targetSession = sessions.find(session => session.id === sessionId)
+
+    if (!targetSession) {
+      return
+    }
+
+    const archived = !targetSession.archived
+
+    setSessions(currentSessions => currentSessions.map(session => {
+      if (session.id !== sessionId) {
+        return session
+      }
+
+      return {
+        ...session,
+        archived,
+        pinned: archived ? false : session.pinned,
+        updatedAt: Date.now()
+      }
+    }))
+
+    if (sessionId === activeSessionId && archived) {
+      const nextSession = sessions.find(session => session.id !== sessionId && !session.archived)
+
+      if (nextSession) {
+        setActiveSessionId(nextSession.id)
+      } else {
+        startSession()
+      }
+    }
+
+    showToast(archived ? 'Chat archived' : 'Chat restored')
+  }
+
+  function duplicateSession(sessionId) {
+    const session = sessions.find(currentSession => currentSession.id === sessionId)
+
+    if (!session) {
+      return
+    }
+
+    const duplicate = {
+      ...session,
+      id: crypto.randomUUID(),
+      title: `${session.title} copy`,
+      pinned: false,
+      archived: false,
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+      messages: session.messages.map(message => ({
+        ...message,
+        id: crypto.randomUUID(),
+        attachments: message.attachments?.map(attachment => ({ ...attachment }))
+      }))
+    }
+
+    setSessions(currentSessions => [duplicate, ...currentSessions])
+    setActiveSessionId(duplicate.id)
+    setShowArchived(false)
+    showToast('Chat duplicated')
   }
 
   function cancelRequest() {
@@ -1016,8 +1085,12 @@ export default function OllamaChat() {
         onDeleteSession={deleteSession}
         onRenameSession={renameSession}
         onPinSession={pinSession}
+        onArchiveSession={archiveSession}
+        onDuplicateSession={duplicateSession}
+        onToggleArchived={() => setShowArchived(current => !current)}
         onModelChange={changeModel}
         onRefreshModels={loadModels}
+        showArchived={showArchived}
       />
       <button
         type="button"
