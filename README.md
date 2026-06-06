@@ -1,3 +1,5 @@
+![Watchamacallit](src/images/watchamacallit.png)
+
 # Ask Ollama
 
 Ask Ollama is a local chat app for Ollama. It has a React + Material UI interface, a Vite web build, and an Electron desktop shell.
