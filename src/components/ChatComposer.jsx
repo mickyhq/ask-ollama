@@ -3,6 +3,40 @@ import AttachmentList from './AttachmentList.jsx'
 import { extractPdfText } from '../lib/pdfText.js'
 
 const maxFileBytes = 30 * 1024 * 1024
+const imageExtensions = ['.png', '.jpg', '.jpeg', '.webp']
+
+function isImageFile(file) {
+  const fileName = file.name.toLowerCase()
+
+  return file.type.startsWith('image/') || imageExtensions.some(extension => fileName.endsWith(extension))
+}
+
+function readFileAsDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+
+    reader.addEventListener('load', () => resolve(reader.result))
+    reader.addEventListener('error', () => reject(reader.error))
+    reader.readAsDataURL(file)
+  })
+}
+
+async function readFileAttachment(file) {
+  if (isImageFile(file)) {
+    const dataUrl = await readFileAsDataUrl(file)
+
+    return {
+      content: '',
+      image: dataUrl.split(',')[1] ?? ''
+    }
+  }
+
+  const content = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')
+    ? await extractPdfText(file)
+    : await file.text()
+
+  return { content }
+}
 
 export default function ChatComposer({
   value,
@@ -37,16 +71,14 @@ export default function ChatComposer({
       }
 
       try {
-        const content = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')
-          ? await extractPdfText(file)
-          : await file.text()
+        const attachment = await readFileAttachment(file)
 
         nextAttachments.push({
           id: crypto.randomUUID(),
           name: file.name,
           type: file.type,
           size: file.size,
-          content
+          ...attachment
         })
       } catch {
         setFileError(`${file.name} could not be read.`)

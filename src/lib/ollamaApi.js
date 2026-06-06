@@ -16,9 +16,9 @@ export async function getOllamaModels() {
   return response.json()
 }
 
-export async function generateOllamaAnswer({ model, prompt, onChunk, signal }) {
+export async function generateOllamaAnswer({ model, prompt, images = [], onChunk, signal }) {
   if (window.ollamaDesktop) {
-    await window.ollamaDesktop.generate({ model, prompt }, onChunk, signal)
+    await window.ollamaDesktop.generate({ model, prompt, images }, onChunk, signal)
     return
   }
 
@@ -30,6 +30,7 @@ export async function generateOllamaAnswer({ model, prompt, onChunk, signal }) {
     body: JSON.stringify({
       model,
       prompt,
+      images,
       stream: true
     }),
     signal

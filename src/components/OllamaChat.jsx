@@ -49,8 +49,20 @@ function formatAttachmentContents(attachments) {
   }
 
   return attachments
-    .map(attachment => `File: ${attachment.name}\nType: ${attachment.type || 'unknown'}\nContent:\n${attachment.content}`)
+    .map(attachment => {
+      const content = attachment.image
+        ? '[image attached]'
+        : attachment.content
+
+      return `File: ${attachment.name}\nType: ${attachment.type || 'unknown'}\nContent:\n${content}`
+    })
     .join('\n\n---\n\n')
+}
+
+function getAttachmentImages(attachments) {
+  return attachments
+    .map(attachment => attachment.image)
+    .filter(Boolean)
 }
 
 export default function OllamaChat() {
@@ -246,6 +258,7 @@ export default function OllamaChat() {
           ...message,
           content: message.promptContent ?? message.content
         }))),
+        images: getAttachmentImages(currentAttachments),
         onChunk: chunk => {
           setSessions(currentSessions => currentSessions.map(session => {
             if (session.id !== activeSession.id) {

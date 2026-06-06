@@ -1,3 +1,4 @@
+import { useEffect, useMemo, useRef } from 'react'
 import MarkdownResult from './MarkdownResult.jsx'
 
 function formatSize(size) {
@@ -13,16 +14,29 @@ function formatSize(size) {
 }
 
 export default function ChatMessages({ messages, loading }) {
+  const messagesRef = useRef(null)
+  const scrollKey = useMemo(
+    () => messages.map(message => `${message.id}:${message.content.length}`).join('|'),
+    [messages]
+  )
+
+  useEffect(() => {
+    messagesRef.current?.scrollTo({
+      top: messagesRef.current.scrollHeight,
+      behavior: 'smooth'
+    })
+  }, [scrollKey])
+
   if (messages.length === 0) {
     return (
-      <section className="messages empty-chat">
+      <section className="messages empty-chat" ref={messagesRef}>
         
       </section>
     )
   }
 
   return (
-    <section className="messages" aria-live="polite">
+    <section className="messages" aria-live="polite" ref={messagesRef}>
       {messages.map(message => (
         <article className={`message ${message.role}`} key={message.id}>
           <div className="message-label">
