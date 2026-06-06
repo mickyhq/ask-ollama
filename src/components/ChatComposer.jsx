@@ -64,6 +64,7 @@ export default function ChatComposer({
 
   const hasBigAttachment = attachments.some(attachment => (attachment.content?.length ?? 0) > bigAttachmentChars)
   const contextPercent = Math.min(100, Math.round(contextSize / bigAttachmentChars * 100))
+  const contextTokens = Math.ceil(contextSize / 4)
 
   function handleKeyDown(event) {
     if (event.key === 'Enter' && !event.shiftKey) {
@@ -222,7 +223,7 @@ export default function ChatComposer({
           <div className="context-meter">
             <LinearProgress variant="determinate" value={contextPercent} color={contextPercent > 80 ? 'warning' : 'primary'} />
             <Typography color="text.secondary" variant="caption">
-              Context estimate {contextPercent}%
+              Context estimate {contextPercent}% - ~{contextTokens.toLocaleString()} tokens
             </Typography>
           </div>
         )}

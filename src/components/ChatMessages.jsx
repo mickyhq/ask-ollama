@@ -312,7 +312,7 @@ export default function ChatMessages({
 
           {message.stats && (
             <div className="message-stats">
-              {message.stats.words} words - {message.stats.seconds}s
+              {message.stats.words} words - ~{message.stats.tokens} tokens - {message.stats.seconds}s - {message.stats.tokensPerSecond} tok/s
             </div>
           )}
         </article>

@@ -4,6 +4,7 @@ import ChatComposer from './ChatComposer.jsx'
 import ChatMessages from './ChatMessages.jsx'
 import ChatTools from './ChatTools.jsx'
 import CommandPalette from './CommandPalette.jsx'
+import ConfirmDialog from './ConfirmDialog.jsx'
 import SettingsPanel from './SettingsPanel.jsx'
 import SessionSidebar from './SessionSidebar.jsx'
 import { generateOllamaAnswer, getOllamaModelInfo, getOllamaModels } from '../lib/ollamaApi.js'
@@ -159,6 +160,10 @@ function countSearchMatches(text, search) {
   return count
 }
 
+function estimateTokens(text) {
+  return Math.ceil(text.length / 4)
+}
+
 export default function OllamaChat() {
   const [models, setModels] = useState([])
   const [model, setModel] = useState('')
@@ -179,6 +184,8 @@ export default function OllamaChat() {
   const [paletteOpen, setPaletteOpen] = useState(false)
   const [toast, setToast] = useState('')
   const [deletedSession, setDeletedSession] = useState(null)
+  const [clearedSession, setClearedSession] = useState(null)
+  const [clearDialogOpen, setClearDialogOpen] = useState(false)
   const [sidebarWidth, setSidebarWidth] = useState(() => Number(localStorage.getItem('ask-ollama-sidebar-width')) || 300)
   const [previewAttachment, setPreviewAttachment] = useState(null)
   const activeRequestRef = useRef(null)
@@ -440,6 +447,7 @@ export default function OllamaChat() {
     }
 
     setDeletedSession(session)
+    setClearedSession(null)
     setSessions(currentSessions => {
       const nextSessions = currentSessions.filter(session => session.id !== sessionId)
       const fallbackSession = nextSessions[0] ?? createSession()
@@ -462,6 +470,7 @@ export default function OllamaChat() {
     setSessions(currentSessions => [deletedSession, ...currentSessions])
     setActiveSessionId(deletedSession.id)
     setDeletedSession(null)
+    setClearedSession(null)
     showToast('Chat restored')
   }
 
@@ -505,7 +514,17 @@ export default function OllamaChat() {
     activeRequestRef.current?.abort()
   }
 
+  function requestClearChat() {
+    if ((activeSession?.messages ?? []).length === 0) {
+      return
+    }
+
+    setClearDialogOpen(true)
+  }
+
   function clearChat() {
+    setClearedSession(activeSession)
+    setDeletedSession(null)
     updateActiveSession(session => ({
       ...session,
       messages: [],
@@ -515,7 +534,25 @@ export default function OllamaChat() {
     setDraft('')
     setAttachments([])
     setError('')
+    setClearDialogOpen(false)
     showToast('Chat cleared')
+  }
+
+  function undoClearChat() {
+    if (!clearedSession) {
+      return
+    }
+
+    setSessions(currentSessions => currentSessions.map(session => {
+      if (session.id !== clearedSession.id) {
+        return session
+      }
+
+      return clearedSession
+    }))
+    setActiveSessionId(clearedSession.id)
+    setClearedSession(null)
+    showToast('Chat restored')
   }
 
   function exportChat() {
@@ -675,11 +712,17 @@ export default function OllamaChat() {
             return message
           }
 
+          const content = message.content
+          const seconds = Math.max(1, Math.round((Date.now() - startedAt) / 1000))
+          const tokens = estimateTokens(content)
+
           return {
             ...message,
             stats: {
-              seconds: Math.max(1, Math.round((Date.now() - startedAt) / 1000)),
-              words: message.content.trim().split(/\s+/).filter(Boolean).length
+              seconds,
+              words: content.trim().split(/\s+/).filter(Boolean).length,
+              tokens,
+              tokensPerSecond: Math.round(tokens / seconds * 10) / 10
             }
           }
         })
@@ -881,7 +924,7 @@ export default function OllamaChat() {
           onSearchNext={() => setSearchJump(current => current + 1)}
           onSearchPrevious={() => setSearchJump(current => current - 1)}
           onExport={exportChat}
-          onClear={clearChat}
+          onClear={requestClearChat}
           onToggleSettings={() => setSettingsOpen(current => !current)}
         />
 
@@ -934,6 +977,14 @@ export default function OllamaChat() {
           )}
         </DialogContent>
       </Dialog>
+      <ConfirmDialog
+        open={clearDialogOpen}
+        title="Clear chat?"
+        body="This removes all messages in this chat."
+        confirmLabel="Clear"
+        onCancel={() => setClearDialogOpen(false)}
+        onConfirm={clearChat}
+      />
       <Snackbar
         open={Boolean(toast)}
         autoHideDuration={3000}
@@ -941,6 +992,10 @@ export default function OllamaChat() {
         onClose={() => setToast('')}
         action={deletedSession ? (
           <Button color="secondary" onClick={undoDeleteSession}>
+            Undo
+          </Button>
+        ) : clearedSession ? (
+          <Button color="secondary" onClick={undoClearChat}>
             Undo
           </Button>
         ) : null}
