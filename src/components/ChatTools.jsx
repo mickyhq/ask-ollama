@@ -27,11 +27,25 @@ export default function ChatTools({
 
       {search.trim() && (
         <div className="search-buttons">
-          <button type="button" className="secondary-button" disabled={searchCount === 0} onClick={onSearchPrevious}>
-            Prev
+          <button
+            type="button"
+            className="secondary-button"
+            disabled={searchCount === 0}
+            onClick={onSearchPrevious}
+            title="Previous match"
+            aria-label="Previous match"
+          >
+            ‹
           </button>
-          <button type="button" className="secondary-button" disabled={searchCount === 0} onClick={onSearchNext}>
-            Next
+          <button
+            type="button"
+            className="secondary-button"
+            disabled={searchCount === 0}
+            onClick={onSearchNext}
+            title="Next match"
+            aria-label="Next match"
+          >
+            ›
           </button>
           {searchCount > 0 && <span>{searchIndex + 1}/{searchCount}</span>}
         </div>
@@ -44,16 +58,36 @@ export default function ChatTools({
         placeholder="System prompt"
       />
 
-      <button type="button" className="secondary-button chat-tool-button" disabled={!hasMessages} onClick={onExport}>
-        Export
+      <button
+        type="button"
+        className="secondary-button chat-tool-button"
+        disabled={!hasMessages}
+        onClick={onExport}
+        title="Export chat"
+        aria-label="Export chat"
+      >
+        ⇩
       </button>
 
-      <button type="button" className="secondary-button chat-tool-button" disabled={!hasMessages} onClick={onClear}>
-        Clear
+      <button
+        type="button"
+        className="secondary-button chat-tool-button"
+        disabled={!hasMessages}
+        onClick={onClear}
+        title="Clear chat"
+        aria-label="Clear chat"
+      >
+        ⌫
       </button>
 
-      <button type="button" className="secondary-button chat-tool-button" onClick={onToggleSettings}>
-        {settingsOpen ? 'Hide' : 'Settings'}
+      <button
+        type="button"
+        className="secondary-button chat-tool-button"
+        onClick={onToggleSettings}
+        title={settingsOpen ? 'Hide settings' : 'Show settings'}
+        aria-label={settingsOpen ? 'Hide settings' : 'Show settings'}
+      >
+        ⚙
       </button>
 
       {status && <span className="status-text">{status}</span>}

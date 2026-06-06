@@ -245,8 +245,15 @@ export default function ChatComposer({
         <option value="first-part">First part</option>
       </select>
 
-      <button className="attach-button" type="button" disabled={loading} onClick={handleBrowse}>
-        File
+      <button
+        className="attach-button"
+        type="button"
+        disabled={loading}
+        onClick={handleBrowse}
+        title="Attach file"
+        aria-label="Attach file"
+      >
+        ⎘
       </button>
 
       <button
@@ -254,18 +261,31 @@ export default function ChatComposer({
         type="button"
         disabled={loading || !canUseSpeechRecognition()}
         onClick={toggleMic}
+        title={listening ? 'Stop dictation' : 'Start dictation'}
+        aria-label={listening ? 'Stop dictation' : 'Start dictation'}
       >
-        {listening ? 'Stop' : 'Mic'}
+        {listening ? '■' : '◉'}
       </button>
 
       {loading && (
-        <button className="cancel-button" type="button" onClick={onCancel}>
-          Cancel
+        <button
+          className="cancel-button"
+          type="button"
+          onClick={onCancel}
+          title="Cancel request"
+          aria-label="Cancel request"
+        >
+          ■
         </button>
       )}
 
-      <button type="submit" disabled={disabled || loading || (!value.trim() && attachments.length === 0)}>
-        {loading ? 'Wait' : 'Send'}
+      <button
+        type="submit"
+        disabled={disabled || loading || (!value.trim() && attachments.length === 0)}
+        title={loading ? 'Waiting' : 'Send message'}
+        aria-label={loading ? 'Waiting' : 'Send message'}
+      >
+        {loading ? '…' : '↑'}
       </button>
     </form>
   )

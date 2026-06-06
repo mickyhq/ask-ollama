@@ -20,27 +20,30 @@ export default function SessionRow({
         type="button"
         className="delete-session-button"
         onClick={() => onPin(session.id)}
+        title={session.pinned ? 'Unpin chat' : 'Pin chat'}
         aria-label={`${session.pinned ? 'Unpin' : 'Pin'} ${session.title}`}
       >
-        {session.pinned ? 'Unpin' : 'Pin'}
+        {session.pinned ? '★' : '☆'}
       </button>
 
       <button
         type="button"
         className="delete-session-button"
         onClick={() => onRename(session.id)}
+        title="Rename chat"
         aria-label={`Rename ${session.title}`}
       >
-        Rename
+        ✎
       </button>
 
       <button
         type="button"
         className="delete-session-button"
         onClick={() => onDelete(session.id)}
+        title="Delete chat"
         aria-label={`Delete ${session.title}`}
       >
-        Delete
+        ×
       </button>
     </div>
   )

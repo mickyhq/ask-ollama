@@ -139,11 +139,23 @@ export default function SettingsPanel({
       </label>
 
       <div className="settings-actions">
-        <button type="button" className="secondary-button" onClick={onExportAll}>
-          Backup
+        <button
+          type="button"
+          className="secondary-button"
+          onClick={onExportAll}
+          title="Backup chats"
+          aria-label="Backup chats"
+        >
+          ⇩
         </button>
-        <button type="button" className="secondary-button" onClick={() => inputRef.current?.click()}>
-          Import
+        <button
+          type="button"
+          className="secondary-button"
+          onClick={() => inputRef.current?.click()}
+          title="Import chats"
+          aria-label="Import chats"
+        >
+          ⇧
         </button>
       </div>
 

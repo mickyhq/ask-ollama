@@ -229,32 +229,57 @@ export default function ChatMessages({
 
             <div className="message-actions">
               {message.role === 'user' && (
-                <button type="button" onClick={() => onEditMessage(message)}>
-                  Edit
+                <button
+                  type="button"
+                  onClick={() => onEditMessage(message)}
+                  title="Edit message"
+                  aria-label="Edit message"
+                >
+                  ✎
                 </button>
               )}
 
               {message.role === 'assistant' && (
-                <button type="button" onClick={() => copyMessage(message)}>
-                  {copiedId === message.id ? 'Copied' : 'Copy'}
+                <button
+                  type="button"
+                  onClick={() => copyMessage(message)}
+                  title={copiedId === message.id ? 'Copied' : 'Copy answer'}
+                  aria-label={copiedId === message.id ? 'Copied' : 'Copy answer'}
+                >
+                  {copiedId === message.id ? '✓' : '⧉'}
                 </button>
               )}
 
               {message.role === 'assistant' && (
-                <button type="button" onClick={() => toggleSpeech(message)}>
-                  {speakingId === message.id ? 'Quiet' : 'Speak'}
+                <button
+                  type="button"
+                  onClick={() => toggleSpeech(message)}
+                  title={speakingId === message.id ? 'Stop speaking' : 'Speak answer'}
+                  aria-label={speakingId === message.id ? 'Stop speaking' : 'Speak answer'}
+                >
+                  {speakingId === message.id ? '■' : '▶'}
                 </button>
               )}
 
               {message.id === lastAssistantId && !loading && (
-                <button type="button" onClick={onRegenerate}>
-                  Again
+                <button
+                  type="button"
+                  onClick={onRegenerate}
+                  title="Regenerate answer"
+                  aria-label="Regenerate answer"
+                >
+                  ↻
                 </button>
               )}
 
               {message.id === lastAssistantId && loading && (
-                <button type="button" onClick={onCancel}>
-                  Stop
+                <button
+                  type="button"
+                  onClick={onCancel}
+                  title="Stop answer"
+                  aria-label="Stop answer"
+                >
+                  ■
                 </button>
               )}
             </div>

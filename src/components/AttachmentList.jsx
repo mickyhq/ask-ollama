@@ -30,8 +30,13 @@ export default function AttachmentList({ attachments, onRemove }) {
           {attachment.previewUrl && <img src={attachment.previewUrl} alt="" />}
           <span>{attachment.name}</span>
           <small>{getAttachmentKind(attachment)} - {formatSize(attachment.size)}</small>
-          <button type="button" onClick={() => onRemove(attachment.id)}>
-            Remove
+          <button
+            type="button"
+            onClick={() => onRemove(attachment.id)}
+            title={`Remove ${attachment.name}`}
+            aria-label={`Remove ${attachment.name}`}
+          >
+            ×
           </button>
         </div>
       ))}

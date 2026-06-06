@@ -25,8 +25,10 @@ export default function ModelSelect({ models, value, loading, onChange, onRefres
           type="button"
           onClick={onRefresh}
           disabled={loading}
+          title="Refresh models"
+          aria-label="Refresh models"
         >
-          Refresh
+          ↻
         </button>
       </div>
 

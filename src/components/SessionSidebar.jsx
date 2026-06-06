@@ -38,8 +38,13 @@ export default function SessionSidebar({
           <p className="eyebrow">Discussions</p>
           <h2>Chats</h2>
         </div>
-        <button type="button" onClick={onNewSession}>
-          New
+        <button
+          type="button"
+          onClick={onNewSession}
+          title="New chat"
+          aria-label="New chat"
+        >
+          +
         </button>
       </div>
 

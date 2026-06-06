@@ -12,8 +12,13 @@ export default function CodeBlock({ children, className }) {
 
   return (
     <div className="code-block">
-      <button type="button" onClick={copyCode}>
-        {copied ? 'Copied' : 'Copy'}
+      <button
+        type="button"
+        onClick={copyCode}
+        title={copied ? 'Copied' : 'Copy code'}
+        aria-label={copied ? 'Copied' : 'Copy code'}
+      >
+        {copied ? '✓' : '⧉'}
       </button>
       <pre>
         <code className={className}>{children}</code>
