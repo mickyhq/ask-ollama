@@ -1,6 +1,6 @@
 # Ask Ollama
 
-Ask Ollama is a local chat app for Ollama. It has a React UI, a Vite web build, and an Electron desktop shell.
+Ask Ollama is a local chat app for Ollama. It has a React + Material UI interface, a Vite web build, and an Electron desktop shell.
 
 ## Features
 
@@ -131,7 +131,7 @@ The app uses:
 
 ## Project Structure
 
-- `src/components/` - React UI components.
+- `src/components/` - React and Material UI components.
 - `src/lib/` - Ollama API, file helpers, PDF text, model capability helpers.
 - `src/images/ollama.png` - logo and icon image.
 - `electron/` - desktop app shell and preload bridge.

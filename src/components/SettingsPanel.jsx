@@ -1,3 +1,17 @@
+import DownloadIcon from '@mui/icons-material/Download'
+import UploadFileIcon from '@mui/icons-material/UploadFile'
+import {
+  Checkbox,
+  FormControl,
+  FormControlLabel,
+  IconButton,
+  InputLabel,
+  MenuItem,
+  Select,
+  Slider,
+  Tooltip,
+  Typography
+} from '@mui/material'
 import { useEffect, useRef, useState } from 'react'
 
 export default function SettingsPanel({
@@ -28,135 +42,137 @@ export default function SettingsPanel({
 
   return (
     <div className="settings-panel">
-      <label>
-        Theme
-        <select
+      <FormControl size="small">
+        <InputLabel id="theme-label">Theme</InputLabel>
+        <Select
+          labelId="theme-label"
+          label="Theme"
           value={settings.theme}
           onChange={event => onSettingsChange({ ...settings, theme: event.target.value })}
         >
-          <option value="dark">Dark</option>
-          <option value="light">Light</option>
-        </select>
-      </label>
+          <MenuItem value="dark">Dark</MenuItem>
+          <MenuItem value="light">Light</MenuItem>
+        </Select>
+      </FormControl>
 
-      <label>
-        Font size
-        <select
+      <FormControl size="small">
+        <InputLabel id="font-size-label">Font size</InputLabel>
+        <Select
+          labelId="font-size-label"
+          label="Font size"
           value={settings.fontSize}
           onChange={event => onSettingsChange({ ...settings, fontSize: event.target.value })}
         >
-          <option value="small">Small</option>
-          <option value="normal">Normal</option>
-          <option value="large">Large</option>
-        </select>
-      </label>
+          <MenuItem value="small">Small</MenuItem>
+          <MenuItem value="normal">Normal</MenuItem>
+          <MenuItem value="large">Large</MenuItem>
+        </Select>
+      </FormControl>
 
-      <label>
-        Default model
-        <select
+      <FormControl size="small">
+        <InputLabel id="default-model-label">Default model</InputLabel>
+        <Select
+          labelId="default-model-label"
+          label="Default model"
           value={settings.defaultModel}
           onChange={event => onSettingsChange({ ...settings, defaultModel: event.target.value })}
         >
-          <option value="">First installed</option>
+          <MenuItem value="">First installed</MenuItem>
           {models.map(model => (
-            <option key={model.name} value={model.name}>
+            <MenuItem key={model.name} value={model.name}>
               {model.name}
-            </option>
+            </MenuItem>
           ))}
-        </select>
-      </label>
+        </Select>
+      </FormControl>
 
-      <label>
-        Voice
-        <select
+      <FormControl size="small">
+        <InputLabel id="voice-label">Voice</InputLabel>
+        <Select
+          labelId="voice-label"
+          label="Voice"
           value={settings.voiceName}
           onChange={event => onSettingsChange({ ...settings, voiceName: event.target.value })}
         >
-          <option value="">System voice</option>
+          <MenuItem value="">System voice</MenuItem>
           {voices.map(voice => (
-            <option key={`${voice.name}-${voice.lang}`} value={voice.name}>
+            <MenuItem key={`${voice.name}-${voice.lang}`} value={voice.name}>
               {voice.name} ({voice.lang})
-            </option>
+            </MenuItem>
           ))}
-        </select>
-      </label>
+        </Select>
+      </FormControl>
 
-      <label>
-        Speed
-        <input
-          type="range"
+      <div>
+        <Typography variant="caption">Speed</Typography>
+        <Slider
           min="0.5"
           max="2"
           step="0.1"
           value={settings.voiceRate}
-          onChange={event => onSettingsChange({ ...settings, voiceRate: event.target.value })}
+          onChange={(_event, value) => onSettingsChange({ ...settings, voiceRate: value })}
         />
-      </label>
+      </div>
 
-      <label>
-        Pitch
-        <input
-          type="range"
+      <div>
+        <Typography variant="caption">Pitch</Typography>
+        <Slider
           min="0.5"
           max="2"
           step="0.1"
           value={settings.voicePitch}
-          onChange={event => onSettingsChange({ ...settings, voicePitch: event.target.value })}
+          onChange={(_event, value) => onSettingsChange({ ...settings, voicePitch: value })}
         />
-      </label>
+      </div>
 
-      <label>
-        Mic language
-        <select
+      <FormControl size="small">
+        <InputLabel id="mic-language-label">Mic language</InputLabel>
+        <Select
+          labelId="mic-language-label"
+          label="Mic language"
           value={settings.micLanguage}
           onChange={event => onSettingsChange({ ...settings, micLanguage: event.target.value })}
         >
-          <option value="en-US">English US</option>
-          <option value="en-GB">English UK</option>
-          <option value="fr-FR">French</option>
-          <option value="es-ES">Spanish</option>
-          <option value="de-DE">German</option>
-          <option value="it-IT">Italian</option>
-        </select>
-      </label>
+          <MenuItem value="en-US">English US</MenuItem>
+          <MenuItem value="en-GB">English UK</MenuItem>
+          <MenuItem value="fr-FR">French</MenuItem>
+          <MenuItem value="es-ES">Spanish</MenuItem>
+          <MenuItem value="de-DE">German</MenuItem>
+          <MenuItem value="it-IT">Italian</MenuItem>
+        </Select>
+      </FormControl>
 
-      <label className="toggle-label">
-        <input
-          type="checkbox"
-          checked={settings.autoReadAnswers}
-          onChange={event => onSettingsChange({ ...settings, autoReadAnswers: event.target.checked })}
-        />
-        Auto-read answers
-      </label>
+      <FormControlLabel
+        control={(
+          <Checkbox
+            checked={settings.autoReadAnswers}
+            onChange={event => onSettingsChange({ ...settings, autoReadAnswers: event.target.checked })}
+          />
+        )}
+        label="Auto-read answers"
+      />
 
-      <label className="toggle-label">
-        <input
-          type="checkbox"
-          checked={settings.keepListening}
-          onChange={event => onSettingsChange({ ...settings, keepListening: event.target.checked })}
-        />
-        Keep mic listening
-      </label>
+      <FormControlLabel
+        control={(
+          <Checkbox
+            checked={settings.keepListening}
+            onChange={event => onSettingsChange({ ...settings, keepListening: event.target.checked })}
+          />
+        )}
+        label="Keep mic listening"
+      />
 
       <div className="settings-actions">
-        <button
-          type="button"
-          className="secondary-button"
-          onClick={onExportAll}
-          title="Backup chats"
-          aria-label="Backup chats"
-        >
-          ⇩
-        </button>
-        <button
-          type="button"
-          className="secondary-button"
-          onClick={() => inputRef.current?.click()}
-          title="Import chats"
-          aria-label="Import chats"
-        >
-          ⇧
-        </button>
+        <Tooltip title="Backup chats">
+          <IconButton color="primary" onClick={onExportAll} aria-label="Backup chats">
+            <DownloadIcon />
+          </IconButton>
+        </Tooltip>
+        <Tooltip title="Import chats">
+          <IconButton color="primary" onClick={() => inputRef.current?.click()} aria-label="Import chats">
+            <UploadFileIcon />
+          </IconButton>
+        </Tooltip>
       </div>
 
       <input

@@ -1,3 +1,4 @@
+import { ThemeProvider } from '@mui/material'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import ChatComposer from './ChatComposer.jsx'
 import ChatMessages from './ChatMessages.jsx'
@@ -5,6 +6,7 @@ import ChatTools from './ChatTools.jsx'
 import SettingsPanel from './SettingsPanel.jsx'
 import SessionSidebar from './SessionSidebar.jsx'
 import { generateOllamaAnswer, getOllamaModelInfo, getOllamaModels } from '../lib/ollamaApi.js'
+import { createAppTheme } from '../theme.js'
 
 const sessionsStorageKey = 'ask-ollama-sessions'
 const settingsStorageKey = 'ask-ollama-settings'
@@ -178,6 +180,10 @@ export default function OllamaChat() {
   const activeSession = useMemo(
     () => sessions.find(session => session.id === activeSessionId) ?? sessions[0],
     [activeSessionId, sessions]
+  )
+  const muiTheme = useMemo(
+    () => createAppTheme(settings.theme, settings.fontSize),
+    [settings.theme, settings.fontSize]
   )
   const sortedSessions = useMemo(() => sortSessions(sessions), [sessions])
 
@@ -727,7 +733,8 @@ export default function OllamaChat() {
   }
 
   return (
-    <main className="app-shell">
+    <ThemeProvider theme={muiTheme}>
+      <main className="app-shell">
       <SessionSidebar
         sessions={sortedSessions}
         activeSessionId={activeSession?.id}
@@ -796,6 +803,7 @@ export default function OllamaChat() {
           onCancel={cancelRequest}
         />
       </section>
-    </main>
+      </main>
+    </ThemeProvider>
   )
 }

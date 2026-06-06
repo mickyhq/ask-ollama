@@ -1,3 +1,6 @@
+import CloseIcon from '@mui/icons-material/Close'
+import { IconButton, Tooltip } from '@mui/material'
+
 function formatSize(size) {
   if (size < 1024) {
     return `${size} B`
@@ -30,14 +33,11 @@ export default function AttachmentList({ attachments, onRemove }) {
           {attachment.previewUrl && <img src={attachment.previewUrl} alt="" />}
           <span>{attachment.name}</span>
           <small>{getAttachmentKind(attachment)} - {formatSize(attachment.size)}</small>
-          <button
-            type="button"
-            onClick={() => onRemove(attachment.id)}
-            title={`Remove ${attachment.name}`}
-            aria-label={`Remove ${attachment.name}`}
-          >
-            ×
-          </button>
+          <Tooltip title={`Remove ${attachment.name}`}>
+            <IconButton color="primary" onClick={() => onRemove(attachment.id)} aria-label={`Remove ${attachment.name}`}>
+              <CloseIcon />
+            </IconButton>
+          </Tooltip>
         </div>
       ))}
     </div>

@@ -1,3 +1,6 @@
+import ContentCopyIcon from '@mui/icons-material/ContentCopy'
+import DoneIcon from '@mui/icons-material/Done'
+import { IconButton, Tooltip } from '@mui/material'
 import { useState } from 'react'
 
 export default function CodeBlock({ children, className }) {
@@ -12,14 +15,11 @@ export default function CodeBlock({ children, className }) {
 
   return (
     <div className="code-block">
-      <button
-        type="button"
-        onClick={copyCode}
-        title={copied ? 'Copied' : 'Copy code'}
-        aria-label={copied ? 'Copied' : 'Copy code'}
-      >
-        {copied ? '✓' : '⧉'}
-      </button>
+      <Tooltip title={copied ? 'Copied' : 'Copy code'}>
+        <IconButton color="primary" onClick={copyCode} aria-label={copied ? 'Copied' : 'Copy code'}>
+          {copied ? <DoneIcon /> : <ContentCopyIcon />}
+        </IconButton>
+      </Tooltip>
       <pre>
         <code className={className}>{children}</code>
       </pre>

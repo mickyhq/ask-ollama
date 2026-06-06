@@ -1,3 +1,8 @@
+import AttachFileIcon from '@mui/icons-material/AttachFile'
+import KeyboardVoiceIcon from '@mui/icons-material/KeyboardVoice'
+import SendIcon from '@mui/icons-material/Send'
+import StopIcon from '@mui/icons-material/Stop'
+import { FormControl, IconButton, InputLabel, MenuItem, Select, TextField, Tooltip } from '@mui/material'
 import { useEffect, useRef, useState } from 'react'
 import AttachmentList from './AttachmentList.jsx'
 import PromptTemplates from './PromptTemplates.jsx'
@@ -212,13 +217,15 @@ export default function ChatComposer({
         {warning && <p className="file-warning">{warning}</p>}
         {hasBigAttachment && <p className="file-warning">Big file. Model may forget far text.</p>}
 
-        <textarea
+        <TextField
           aria-label="Message"
+          multiline
           value={value}
           onChange={event => onChange(event.target.value)}
           onKeyDown={handleKeyDown}
           onPaste={handlePaste}
-          rows="2"
+          minRows={2}
+          maxRows={5}
           placeholder="Ask Ollama..."
         />
       </div>
@@ -236,57 +243,61 @@ export default function ChatComposer({
 
       <PromptTemplates onApply={template => onChange(value ? `${value}\n\n${template}` : template)} />
 
-      <select
-        aria-label="File mode"
-        value={fileMode}
-        onChange={event => setFileMode(event.target.value)}
-      >
-        <option value="full">Full file</option>
-        <option value="first-part">First part</option>
-      </select>
+      <FormControl size="small">
+        <InputLabel id="file-mode-label">File mode</InputLabel>
+        <Select
+          labelId="file-mode-label"
+          label="File mode"
+          aria-label="File mode"
+          value={fileMode}
+          onChange={event => setFileMode(event.target.value)}
+        >
+          <MenuItem value="full">Full file</MenuItem>
+          <MenuItem value="first-part">First part</MenuItem>
+        </Select>
+      </FormControl>
 
-      <button
-        className="attach-button"
-        type="button"
-        disabled={loading}
-        onClick={handleBrowse}
-        title="Attach file"
-        aria-label="Attach file"
-      >
-        ⎘
-      </button>
+      <Tooltip title="Attach file">
+        <span>
+          <IconButton color="primary" disabled={loading} onClick={handleBrowse} aria-label="Attach file">
+            <AttachFileIcon />
+          </IconButton>
+        </span>
+      </Tooltip>
 
-      <button
-        className={listening ? 'mic-button listening' : 'mic-button'}
-        type="button"
-        disabled={loading || !canUseSpeechRecognition()}
-        onClick={toggleMic}
-        title={listening ? 'Stop dictation' : 'Start dictation'}
-        aria-label={listening ? 'Stop dictation' : 'Start dictation'}
-      >
-        {listening ? '■' : '◉'}
-      </button>
+      <Tooltip title={listening ? 'Stop dictation' : 'Start dictation'}>
+        <span>
+          <IconButton
+            color={listening ? 'warning' : 'primary'}
+            disabled={loading || !canUseSpeechRecognition()}
+            onClick={toggleMic}
+            aria-label={listening ? 'Stop dictation' : 'Start dictation'}
+          >
+            {listening ? <StopIcon /> : <KeyboardVoiceIcon />}
+          </IconButton>
+        </span>
+      </Tooltip>
 
       {loading && (
-        <button
-          className="cancel-button"
-          type="button"
-          onClick={onCancel}
-          title="Cancel request"
-          aria-label="Cancel request"
-        >
-          ■
-        </button>
+        <Tooltip title="Cancel request">
+          <IconButton color="error" onClick={onCancel} aria-label="Cancel request">
+            <StopIcon />
+          </IconButton>
+        </Tooltip>
       )}
 
-      <button
-        type="submit"
-        disabled={disabled || loading || (!value.trim() && attachments.length === 0)}
-        title={loading ? 'Waiting' : 'Send message'}
-        aria-label={loading ? 'Waiting' : 'Send message'}
-      >
-        {loading ? '…' : '↑'}
-      </button>
+      <Tooltip title={loading ? 'Waiting' : 'Send message'}>
+        <span>
+          <IconButton
+            color="primary"
+            type="submit"
+            disabled={disabled || loading || (!value.trim() && attachments.length === 0)}
+            aria-label={loading ? 'Waiting' : 'Send message'}
+          >
+            {loading ? <StopIcon /> : <SendIcon />}
+          </IconButton>
+        </span>
+      </Tooltip>
     </form>
   )
 }

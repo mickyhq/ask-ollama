@@ -19,22 +19,27 @@ const templates = [
 
 export default function PromptTemplates({ onApply }) {
   return (
-    <select
-      aria-label="Prompt templates"
-      defaultValue=""
-      onChange={event => {
-        if (event.target.value) {
-          onApply(event.target.value)
-          event.target.value = ''
-        }
-      }}
-    >
-      <option value="">Template</option>
+    <FormControl size="small">
+      <InputLabel id="prompt-template-label">Template</InputLabel>
+      <Select
+        labelId="prompt-template-label"
+        label="Template"
+        aria-label="Prompt templates"
+        value=""
+        onChange={event => {
+          if (event.target.value) {
+            onApply(event.target.value)
+          }
+        }}
+      >
+        <MenuItem value="">Template</MenuItem>
       {templates.map(template => (
-        <option key={template.name} value={template.prompt}>
+        <MenuItem key={template.name} value={template.prompt}>
           {template.name}
-        </option>
+        </MenuItem>
       ))}
-    </select>
+      </Select>
+    </FormControl>
   )
 }
+import { FormControl, InputLabel, MenuItem, Select } from '@mui/material'

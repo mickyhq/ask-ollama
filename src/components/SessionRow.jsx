@@ -1,3 +1,9 @@
+import DeleteIcon from '@mui/icons-material/Delete'
+import EditIcon from '@mui/icons-material/Edit'
+import PushPinIcon from '@mui/icons-material/PushPin'
+import PushPinOutlinedIcon from '@mui/icons-material/PushPinOutlined'
+import { Button, IconButton, Tooltip } from '@mui/material'
+
 export default function SessionRow({
   session,
   active,
@@ -8,43 +14,31 @@ export default function SessionRow({
 }) {
   return (
     <div className="session-row">
-      <button
-        type="button"
-        className={active ? 'session-button active' : 'session-button'}
+      <Button
+        variant={active ? 'contained' : 'outlined'}
+        className="session-button"
         onClick={() => onSelect(session.id)}
       >
         {session.pinned ? 'Pinned ' : ''}{session.title}
-      </button>
+      </Button>
 
-      <button
-        type="button"
-        className="delete-session-button"
-        onClick={() => onPin(session.id)}
-        title={session.pinned ? 'Unpin chat' : 'Pin chat'}
-        aria-label={`${session.pinned ? 'Unpin' : 'Pin'} ${session.title}`}
-      >
-        {session.pinned ? '★' : '☆'}
-      </button>
+      <Tooltip title={session.pinned ? 'Unpin chat' : 'Pin chat'}>
+        <IconButton color="primary" onClick={() => onPin(session.id)} aria-label={`${session.pinned ? 'Unpin' : 'Pin'} ${session.title}`}>
+          {session.pinned ? <PushPinIcon /> : <PushPinOutlinedIcon />}
+        </IconButton>
+      </Tooltip>
 
-      <button
-        type="button"
-        className="delete-session-button"
-        onClick={() => onRename(session.id)}
-        title="Rename chat"
-        aria-label={`Rename ${session.title}`}
-      >
-        ✎
-      </button>
+      <Tooltip title="Rename chat">
+        <IconButton color="primary" onClick={() => onRename(session.id)} aria-label={`Rename ${session.title}`}>
+          <EditIcon />
+        </IconButton>
+      </Tooltip>
 
-      <button
-        type="button"
-        className="delete-session-button"
-        onClick={() => onDelete(session.id)}
-        title="Delete chat"
-        aria-label={`Delete ${session.title}`}
-      >
-        ×
-      </button>
+      <Tooltip title="Delete chat">
+        <IconButton color="error" onClick={() => onDelete(session.id)} aria-label={`Delete ${session.title}`}>
+          <DeleteIcon />
+        </IconButton>
+      </Tooltip>
     </div>
   )
 }

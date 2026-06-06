@@ -1,3 +1,5 @@
+import AddIcon from '@mui/icons-material/Add'
+import { IconButton, Tooltip } from '@mui/material'
 import ModelSelect from './ModelSelect.jsx'
 import SessionRow from './SessionRow.jsx'
 import logoUrl from '../images/ollama.png'
@@ -38,14 +40,11 @@ export default function SessionSidebar({
           <p className="eyebrow">Discussions</p>
           <h2>Chats</h2>
         </div>
-        <button
-          type="button"
-          onClick={onNewSession}
-          title="New chat"
-          aria-label="New chat"
-        >
-          +
-        </button>
+        <Tooltip title="New chat">
+          <IconButton color="primary" onClick={onNewSession} aria-label="New chat">
+            <AddIcon />
+          </IconButton>
+        </Tooltip>
       </div>
 
       <nav className="session-list" aria-label="Saved discussions">

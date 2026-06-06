@@ -1,3 +1,11 @@
+import ContentCopyIcon from '@mui/icons-material/ContentCopy'
+import DoneIcon from '@mui/icons-material/Done'
+import EditIcon from '@mui/icons-material/Edit'
+import GraphicEqIcon from '@mui/icons-material/GraphicEq'
+import ReplayIcon from '@mui/icons-material/Replay'
+import StopIcon from '@mui/icons-material/Stop'
+import VolumeUpIcon from '@mui/icons-material/VolumeUp'
+import { IconButton, Tooltip } from '@mui/material'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import MarkdownResult from './MarkdownResult.jsx'
 import { speakText, stopSpeaking } from '../lib/speech.js'
@@ -229,58 +237,43 @@ export default function ChatMessages({
 
             <div className="message-actions">
               {message.role === 'user' && (
-                <button
-                  type="button"
-                  onClick={() => onEditMessage(message)}
-                  title="Edit message"
-                  aria-label="Edit message"
-                >
-                  ✎
-                </button>
+                <Tooltip title="Edit message">
+                  <IconButton color="primary" onClick={() => onEditMessage(message)} aria-label="Edit message">
+                    <EditIcon />
+                  </IconButton>
+                </Tooltip>
               )}
 
               {message.role === 'assistant' && (
-                <button
-                  type="button"
-                  onClick={() => copyMessage(message)}
-                  title={copiedId === message.id ? 'Copied' : 'Copy answer'}
-                  aria-label={copiedId === message.id ? 'Copied' : 'Copy answer'}
-                >
-                  {copiedId === message.id ? '✓' : '⧉'}
-                </button>
+                <Tooltip title={copiedId === message.id ? 'Copied' : 'Copy answer'}>
+                  <IconButton color="primary" onClick={() => copyMessage(message)} aria-label={copiedId === message.id ? 'Copied' : 'Copy answer'}>
+                    {copiedId === message.id ? <DoneIcon /> : <ContentCopyIcon />}
+                  </IconButton>
+                </Tooltip>
               )}
 
               {message.role === 'assistant' && (
-                <button
-                  type="button"
-                  onClick={() => toggleSpeech(message)}
-                  title={speakingId === message.id ? 'Stop speaking' : 'Speak answer'}
-                  aria-label={speakingId === message.id ? 'Stop speaking' : 'Speak answer'}
-                >
-                  {speakingId === message.id ? '■' : '▶'}
-                </button>
+                <Tooltip title={speakingId === message.id ? 'Stop speaking' : 'Speak answer'}>
+                  <IconButton color="primary" onClick={() => toggleSpeech(message)} aria-label={speakingId === message.id ? 'Stop speaking' : 'Speak answer'}>
+                    {speakingId === message.id ? <GraphicEqIcon /> : <VolumeUpIcon />}
+                  </IconButton>
+                </Tooltip>
               )}
 
               {message.id === lastAssistantId && !loading && (
-                <button
-                  type="button"
-                  onClick={onRegenerate}
-                  title="Regenerate answer"
-                  aria-label="Regenerate answer"
-                >
-                  ↻
-                </button>
+                <Tooltip title="Regenerate answer">
+                  <IconButton color="primary" onClick={onRegenerate} aria-label="Regenerate answer">
+                    <ReplayIcon />
+                  </IconButton>
+                </Tooltip>
               )}
 
               {message.id === lastAssistantId && loading && (
-                <button
-                  type="button"
-                  onClick={onCancel}
-                  title="Stop answer"
-                  aria-label="Stop answer"
-                >
-                  ■
-                </button>
+                <Tooltip title="Stop answer">
+                  <IconButton color="error" onClick={onCancel} aria-label="Stop answer">
+                    <StopIcon />
+                  </IconButton>
+                </Tooltip>
               )}
             </div>
           </div>

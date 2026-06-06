@@ -1,44 +1,47 @@
+import RefreshIcon from '@mui/icons-material/Refresh'
+import { Box, Chip, FormControl, IconButton, InputLabel, MenuItem, Select, Stack, Tooltip } from '@mui/material'
 import { getModelCapabilities } from '../lib/modelCapabilities.js'
 
 export default function ModelSelect({ models, value, loading, onChange, onRefresh }) {
   const capabilities = value ? getModelCapabilities(value) : []
 
   return (
-    <label>
-      Model
+    <Box>
       <div className="model-row">
-        <select
+        <FormControl fullWidth size="small">
+          <InputLabel id="model-select-label">Model</InputLabel>
+          <Select
+            labelId="model-select-label"
+            label="Model"
           value={value}
           onChange={event => onChange(event.target.value)}
           disabled={loading || models.length === 0}
         >
-          {models.length === 0 && <option value="">No models found</option>}
+          {models.length === 0 && <MenuItem value="">No models found</MenuItem>}
           {models.map(model => (
-            <option key={model.name} value={model.name}>
+            <MenuItem key={model.name} value={model.name}>
               {model.name}
-            </option>
+            </MenuItem>
           ))}
-        </select>
+          </Select>
+        </FormControl>
 
-        <button
-          className="secondary-button"
-          type="button"
-          onClick={onRefresh}
-          disabled={loading}
-          title="Refresh models"
-          aria-label="Refresh models"
-        >
-          ↻
-        </button>
+        <Tooltip title="Refresh models">
+          <span>
+            <IconButton color="primary" onClick={onRefresh} disabled={loading} aria-label="Refresh models">
+              <RefreshIcon />
+            </IconButton>
+          </span>
+        </Tooltip>
       </div>
 
       {capabilities.length > 0 && (
-        <div className="model-badges">
+        <Stack direction="row" flexWrap="wrap" gap={0.75} mt={1}>
           {capabilities.map(capability => (
-            <span key={capability}>{capability}</span>
+            <Chip key={capability} label={capability} color="primary" size="small" variant="outlined" />
           ))}
-        </div>
+        </Stack>
       )}
-    </label>
+    </Box>
   )
 }
