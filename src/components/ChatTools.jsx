@@ -1,4 +1,4 @@
-import ClearAllIcon from '@mui/icons-material/ClearAll'
+import DeleteSweepIcon from '@mui/icons-material/DeleteSweep'
 import DownloadIcon from '@mui/icons-material/Download'
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp'
@@ -71,8 +71,8 @@ export default function ChatTools({
 
       <Tooltip title="Clear chat">
         <span>
-          <IconButton color="primary" disabled={!hasMessages} onClick={onClear} aria-label="Clear chat">
-            <ClearAllIcon />
+          <IconButton color="error" disabled={!hasMessages} onClick={onClear} aria-label="Clear chat">
+            <DeleteSweepIcon />
           </IconButton>
         </span>
       </Tooltip>
