@@ -16,7 +16,7 @@ export default function SessionSidebar({
     <aside className="session-sidebar">
       <div className="app-title">
         <div>
-          <p className="eyebrow">Ollama Markdown</p>
+          <p className="eyebrow">Ollama</p>
           <h1>Ask Ollama</h1>
         </div>
       </div>

@@ -212,10 +212,16 @@ select:disabled {
   flex-direction: column;
   flex: 1;
   gap: 18px;
-  justify-content: flex-end;
+  justify-content: flex-start;
   min-height: 0;
   padding: 28px 32px;
-  overflow: auto;
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+}
+
+.messages:not(.empty-chat)::before {
+  content: "";
+  margin-top: auto;
 }
 
 .empty-chat {
