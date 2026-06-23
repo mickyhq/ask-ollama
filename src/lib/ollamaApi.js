@@ -54,7 +54,20 @@ export async function getOllamaModelInfo(model) {
 
 export async function generateOllamaAnswer({ model, prompt, images = [], onChunk, signal }) {
   if (window.ollamaDesktop) {
-    await window.ollamaDesktop.generate({ model, prompt, images }, onChunk, signal)
+    const requestId = crypto.randomUUID()
+
+    function handleAbort() {
+      window.ollamaDesktop.cancel(requestId)
+    }
+
+    signal?.addEventListener('abort', handleAbort, { once: true })
+
+    try {
+      await window.ollamaDesktop.generate(requestId, { model, prompt, images }, onChunk)
+    } finally {
+      signal?.removeEventListener('abort', handleAbort)
+    }
+
     return
   }
 
