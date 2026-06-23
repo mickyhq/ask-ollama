@@ -8,6 +8,7 @@ import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore'
 import NavigateNextIcon from '@mui/icons-material/NavigateNext'
 import SettingsIcon from '@mui/icons-material/Settings'
 import { Box, IconButton, TextField, Tooltip, Typography } from '@mui/material'
+import ImportMarkdownChatButton from './ImportMarkdownChatButton.jsx'
 import OllamaHealth from './OllamaHealth.jsx'
 
 export default function ChatTools({
@@ -23,6 +24,7 @@ export default function ChatTools({
   onSearchNext,
   onSearchPrevious,
   onExport,
+  onImport,
   onCopy,
   onClear,
   onShowShortcuts,
@@ -84,6 +86,8 @@ export default function ChatTools({
           </IconButton>
         </span>
       </Tooltip>
+
+      <ImportMarkdownChatButton onImport={onImport} />
 
       <Tooltip title="Clear chat">
         <span>

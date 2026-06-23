@@ -181,6 +181,84 @@ function formatChatMarkdown(session) {
     .join('\n\n')
 }
 
+function createMessagesFromMarkdown(markdown) {
+  const lines = markdown.replace(/\r\n?/g, '\n').split('\n')
+  const messages = []
+  let currentMessage = null
+
+  function pushCurrentMessage() {
+    if (!currentMessage) {
+      return
+    }
+
+    const content = currentMessage.lines.join('\n').trim()
+
+    if (!content) {
+      return
+    }
+
+    messages.push({
+      id: crypto.randomUUID(),
+      role: currentMessage.role,
+      content
+    })
+  }
+
+  lines.forEach(line => {
+    const heading = line.match(/^##\s+(You|Ollama)\s*$/i)
+
+    if (!heading) {
+      currentMessage?.lines.push(line)
+      return
+    }
+
+    pushCurrentMessage()
+    currentMessage = {
+      role: heading[1].toLowerCase() === 'you' ? 'user' : 'assistant',
+      lines: []
+    }
+  })
+
+  pushCurrentMessage()
+
+  if (messages.length > 0) {
+    return messages
+  }
+
+  const content = markdown.trim()
+
+  if (!content) {
+    return []
+  }
+
+  return [{
+    id: crypto.randomUUID(),
+    role: 'user',
+    content
+  }]
+}
+
+function createImportedSession(file, markdown, model) {
+  const messages = createMessagesFromMarkdown(markdown)
+
+  if (messages.length === 0) {
+    throw new Error('Empty chat')
+  }
+
+  const fileTitle = file.name.replace(/\.[^.]+$/, '').trim()
+  const firstUserMessage = messages.find(message => message.role === 'user')?.content ?? messages[0].content
+  const now = Date.now()
+
+  return {
+    id: crypto.randomUUID(),
+    title: fileTitle || createSessionTitle(firstUserMessage),
+    messages,
+    model,
+    createdAt: now,
+    updatedAt: now
+  }
+}
+
 export default function OllamaChat() {
   const [models, setModels] = useState([])
   const [model, setModel] = useState('')
@@ -319,6 +397,11 @@ export default function OllamaChat() {
       label: 'Export chat',
       description: 'Download current chat markdown',
       run: exportChat
+    },
+    {
+      label: 'Import chat',
+      description: 'Create chat from markdown',
+      run: () => document.querySelector('[aria-label="Import chat"]')?.click()
     },
     {
       label: 'Copy chat',
@@ -755,6 +838,22 @@ export default function OllamaChat() {
     }
   }
 
+  async function importMarkdownChat(file) {
+    try {
+      const importedSession = createImportedSession(file, await file.text(), settings.defaultModel || model)
+
+      setSessions(currentSessions => [importedSession, ...currentSessions])
+      setActiveSessionId(importedSession.id)
+      setShowArchived(false)
+      setDraft('')
+      setAttachments([])
+      setError('')
+      showToast('Chat imported')
+    } catch {
+      setError('Markdown file not good.')
+    }
+  }
+
   function editMessage(message) {
     const messageIndex = activeSession.messages.findIndex(sessionMessage => sessionMessage.id === message.id)
     const branchSession = {
@@ -1117,6 +1216,7 @@ export default function OllamaChat() {
           onSearchNext={() => setSearchJump(current => current + 1)}
           onSearchPrevious={() => setSearchJump(current => current - 1)}
           onExport={exportChat}
+          onImport={importMarkdownChat}
           onCopy={copyChat}
           onClear={requestClearChat}
           onShowShortcuts={() => setShortcutsOpen(true)}
