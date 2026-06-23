@@ -1,7 +1,9 @@
 const { app, BrowserWindow, ipcMain } = require('electron')
 const path = require('node:path')
+const packageJson = require('../package.json')
 const activeRequests = new Map()
 const iconPath = path.join(__dirname, '..', 'src', 'images', 'ollama.png')
+const appTitle = `Ask Ollama v${packageJson.version}`
 
 function createWindow() {
   const win = new BrowserWindow({
@@ -9,7 +11,7 @@ function createWindow() {
     height: 780,
     minWidth: 900,
     minHeight: 620,
-    title: 'Ask Ollama',
+    title: appTitle,
     icon: iconPath,
     backgroundColor: '#0f172a',
     webPreferences: {
@@ -23,6 +25,7 @@ function createWindow() {
 }
 
 app.whenReady().then(() => {
+  app.setName(appTitle)
   createWindow()
 
   app.on('activate', () => {

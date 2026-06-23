@@ -58,6 +58,9 @@
         "zip"
       ],
       "category": "public.app-category.productivity"
+    },
+    "dmg": {
+      "title": "${productName} v${version}"
     }
   }
 }
