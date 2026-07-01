@@ -154,3 +154,7 @@ The app uses:
 - Attached books and text files are sent as-is, not summarized first.
 - Very large files may exceed the selected model context.
 - Image attachments need a vision-capable Ollama model.
+- To view logs: 
+```bash
+tail -f ~/.ollama/logs/server.log 2>/dev/null || log stream --predicate 'process == "ollama"' --level debug
+```
